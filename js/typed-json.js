@@ -269,12 +269,12 @@ var Helpers;
 })(Helpers || (Helpers = {}));
 //#endregion
 //#region "Metadata"
-var JsonMemberMetadata = (function () {
+var JsonMemberMetadata = /** @class */ (function () {
     function JsonMemberMetadata() {
     }
     return JsonMemberMetadata;
 }());
-var JsonObjectMetadata = (function () {
+var JsonObjectMetadata = /** @class */ (function () {
     function JsonObjectMetadata() {
         this._dataMembers = {};
         this._knownTypes = [];
@@ -708,7 +708,7 @@ function JsonMember(optionsOrTarget, propertyKey) {
     }
 }
 exports.JsonMember = JsonMember;
-var Serializer = (function () {
+var Serializer = /** @class */ (function () {
     function Serializer() {
     }
     Serializer.writeObject = function (object, settings) {
@@ -809,7 +809,7 @@ var Serializer = (function () {
     };
     return Serializer;
 }());
-var Deserializer = (function () {
+var Deserializer = /** @class */ (function () {
     function Deserializer() {
     }
     /**
@@ -868,7 +868,7 @@ var Deserializer = (function () {
                 }
             case "undefined":
                 return 0;
-            default:// Primitives.
+            default: // Primitives.
                 return 1;
         }
     };
@@ -890,11 +890,25 @@ var Deserializer = (function () {
         else if (Helpers.isPrimitive(settings.objectType)) {
             // number, string, boolean: assign directly.
             if (json.constructor !== settings.objectType) {
-                var expectedTypeName = Helpers.getClassName(settings.objectType).toLowerCase();
-                var foundTypeName = Helpers.getClassName(json.constructor).toLowerCase();
-                throw new TypeError("Expected value to be of type '" + expectedTypeName + "', got '" + foundTypeName + "'.");
+                var converted = null;
+                var isConverted = false;
+                try {
+                    converted = settings.objectType.constructor(json);
+                    isConverted = true;
+                    object = converted;
+                }
+                catch (err) {
+                    console.log(err);
+                }
+                if (!isConverted) {
+                    var expectedTypeName = Helpers.getClassName(settings.objectType).toLowerCase();
+                    var foundTypeName = Helpers.getClassName(json.constructor).toLowerCase();
+                    throw new TypeError("Expected value to be of type '" + expectedTypeName + "', got '" + foundTypeName + "'.");
+                }
             }
-            object = json;
+            else {
+                object = json;
+            }
         }
         else if (settings.objectType === Array) {
             // 'json' is expected to be an Array.

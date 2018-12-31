@@ -1113,13 +1113,29 @@ abstract class Deserializer {
         } else if (Helpers.isPrimitive(settings.objectType)) {
             // number, string, boolean: assign directly.
             if (json.constructor !== settings.objectType) {
-                let expectedTypeName = Helpers.getClassName(settings.objectType).toLowerCase();
-                let foundTypeName = Helpers.getClassName(json.constructor).toLowerCase();
 
-                throw new TypeError(`Expected value to be of type '${expectedTypeName}', got '${foundTypeName}'.`);
+                let converted = null;
+                let isConverted = false;
+                try {
+                    converted = settings.objectType.constructor(json)
+                    isConverted = true
+                    object = converted
+
+                } catch (err) {
+                    console.log(err)
+                }
+
+                if(!isConverted) {
+
+                    let expectedTypeName = Helpers.getClassName(settings.objectType).toLowerCase();
+                    let foundTypeName = Helpers.getClassName(json.constructor).toLowerCase();
+
+                    throw new TypeError(`Expected value to be of type '${expectedTypeName}', got '${foundTypeName}'.`);
+                }
             }
-
-            object = json;
+            else {
+                object = json;
+            }
         } else if (settings.objectType as any === Array) {
             // 'json' is expected to be an Array.
             if (!Helpers.isArray(json)) {
