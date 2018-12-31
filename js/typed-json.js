@@ -893,7 +893,7 @@ var Deserializer = /** @class */ (function () {
                 var converted = null;
                 var isConverted = false;
                 try {
-                    converted = settings.objectType.constructor(json);
+                    converted = settings.objectType(json);
                     isConverted = true;
                     object = converted;
                 }
